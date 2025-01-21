@@ -1,6 +1,7 @@
 
 plugins {
     id 'java' // Java support
+    id 'org.jetbrains.intellij' version '1.17.0'
 }
 
 group = project.findProperty('pluginGroup')
@@ -12,6 +13,12 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+intellij {
+    version = project.findProperty('platformVersion')
+    type = project.findProperty('platformType')
+}
+
+
 
 repositories {
     mavenCentral()
