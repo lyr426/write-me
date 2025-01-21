@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.template.listeners
+package com.github.lyr426.writeme.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger
