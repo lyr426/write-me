@@ -1,0 +1,107 @@
+
+plugins {
+    id 'java' // Java support
+}
+
+group = project.findProperty('pluginGroup')
+version = project.findProperty('pluginVersion')
+
+// Set the JVM language level used to build the project.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+//intellij {
+//    version = project.findProperty('platformVersion')
+//    type = project.findProperty('platformType')
+//
+//    plugins = project.findProperty('platformPlugins')?.split(',')
+//    bundledPlugins = project.findProperty('platformBundledPlugins')?.split(',')
+//
+//    instrumentationTools = true
+//    pluginVerifier = true
+//    testFramework = TestFrameworkType.PLATFORM
+//}
+
+//changelog {
+//    groups = []
+//    repositoryUrl = project.findProperty('pluginRepositoryUrl')
+//}
+
+//kover {
+//    reports {
+//        xml {
+//            onCheck = true
+//        }
+//    }
+//}
+
+tasks.wrapper {
+    gradleVersion = project.findProperty('gradleVersion')
+}
+
+//intellij {
+//    pluginConfiguration {
+//        version = project.findProperty('pluginVersion')
+//
+//        // Extract the <!-- Plugin description --> section from README.md
+//        description = new File("README.md").text.with { content ->
+//            def start = "<!-- Plugin description -->"
+//            def end = "<!-- Plugin description end -->"
+//
+//            if (!content.contains(start) || !content.contains(end)) {
+//                throw new GradleException("Plugin description section not found in README.md:\n$start ... $end")
+//            }
+//
+//            def description = content.split("\n").findAll {
+//                content.indexOf(start) < content.indexOf(end)
+//            }
+//            markdownToHTML(description.join('\n'))
+//        }
+//
+//        ideaVersion {
+//            sinceBuild = project.findProperty('pluginSinceBuild')
+//            untilBuild = project.findProperty('pluginUntilBuild')
+//        }
+//    }
+//
+////    signing {
+////        certificateChain = System.getenv("CERTIFICATE_CHAIN")
+////        privateKey = System.getenv("PRIVATE_KEY")
+////        password = System.getenv("PRIVATE_KEY_PASSWORD")
+////    }
+//
+//    publishing {
+//        token = System.getenv("PUBLISH_TOKEN")
+//        channels = [project.findProperty('pluginVersion')?.split('-')?.last()?.split('.')?.first() ?: 'default']
+//    }
+//
+//    pluginVerification {
+//        ides = ['recommended']
+//    }
+//}
+//
+//tasks.register('publishPlugin') {
+//    dependsOn 'patchChangelog'
+//}
+//
+//tasks.register('runIdeForUiTests') {
+//    dependsOn 'runIde'
+//    doFirst {
+//        systemProperty "robot-server.port", "8082"
+//        systemProperty "ide.mac.message.dialogs.as.sheets", "false"
+//        systemProperty "jb.privacy.policy.text", "<!--999.999-->"
+//        systemProperty "jb.consents.confirmation.enabled", "false"
+//    }
+//}
+
