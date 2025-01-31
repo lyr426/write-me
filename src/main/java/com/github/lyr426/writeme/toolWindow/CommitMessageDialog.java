@@ -2,6 +2,7 @@ package com.github.lyr426.writeme.toolWindow;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -84,7 +85,7 @@ public class CommitMessageDialog extends DialogWrapper {
       changeListManager.editComment(changeList.getName(), commitMessage);
       changeListManager.setDefaultChangeList(changeList);
 
-      SwingUtilities.invokeLater(() -> {
+      ApplicationManager.getApplication().invokeLater(() -> {
         DataManager.getInstance().getDataContextFromFocusAsync().onSuccess(dataContext -> {
           CommitMessageI commitMessageComponent = VcsDataKeys.COMMIT_MESSAGE_CONTROL.getData(dataContext);
           if (commitMessageComponent instanceof CommitMessage) {
