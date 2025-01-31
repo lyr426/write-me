@@ -16,6 +16,8 @@ java {
 intellij {
     version = project.findProperty('platformVersion')
     type = project.findProperty('platformType')
+    plugins = ['com.intellij.java', 'Git4Idea'] // 필요한 의존성 플러그인 설정
+
 }
 
 
@@ -26,6 +28,7 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+//    implementation group: 'com.github.adedayo.intellij.sdk', name: 'git4idea', version: '142.1'
 }
 
 //intellij {

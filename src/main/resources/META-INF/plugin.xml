@@ -22,9 +22,25 @@
         <action id="CreateFileAction" class="com.github.lyr426.writeme.actions.CreateFileAction" text="Create File">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
+        <action id="GenerateCommitMessageAction" class="com.github.lyr426.writeme.actions.GenerateCommitMessageAction" text="Generate Commit Message">
+            <add-to-group group-id="ChangesView.CommitToolbar" anchor="after" relative-to-action="Vcs.Commit"  />
+        </action>
     </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationConfigurable
+          displayName="Write Me Plugin Settings"
+          id="com.github.lyr426.writeme.settings"
+          instance="com.github.lyr426.writeme.settings.SettingsConfigurable"
+        />
+<!--        <commitMessageProvider implementation="com.github.lyr426.writeme.services.MyCommitMessageProvider"/>-->
+
+    </extensions>
 
     <applicationListeners>
         <listener class="com.github.lyr426.writeme.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
+
+    <idea-version since-build="231" />
+    <depends>Git4Idea</depends>
 </idea-plugin>
