@@ -37,9 +37,6 @@ public class GenerateCommitMessageAction extends AnAction {
     try {
       DiffAnalyzer.getDiff(project, repository, diff -> {
         try {
-          System.out.println("getDiff() 콜백 실행됨");
-          System.out.println("diff = " + diff);
-
           String commitMessage = AiCommitSuggester.generate(String.join("\n", diff));
           SwingUtilities.invokeLater(() -> {
             CommitMessageDialog dialog = new CommitMessageDialog(project, commitMessage);

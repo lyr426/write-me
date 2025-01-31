@@ -29,6 +29,8 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.13.2'
 //    implementation group: 'com.github.adedayo.intellij.sdk', name: 'git4idea', version: '142.1'
+    implementation group: 'org.json', name: 'json', version: '20250107'
+
 }
 
 //intellij {
