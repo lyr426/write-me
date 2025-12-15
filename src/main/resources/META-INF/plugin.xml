@@ -16,7 +16,7 @@
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
         <action id="GenerateCommitMessageAction" class="com.github.lyr426.writeme.actions.GenerateCommitMessageAction" text="Generate Commit Message"
-        icon="/icons/icon16x16.png">
+        icon="/icons/gitBot.png">
             <add-to-group group-id="ChangesView.CommitToolbar" anchor="after" relative-to-action="Vcs.Commit"  />
         </action>
 
