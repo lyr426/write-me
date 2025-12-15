@@ -1,119 +1,48 @@
-
 plugins {
-    id 'java' // Java support
-    id 'org.jetbrains.intellij' version '1.17.0'
+    id 'java'
+    id 'org.jetbrains.intellij.platform' version '2.2.1'
 }
 
-group = project.findProperty('pluginGroup')
-version = project.findProperty('pluginVersion')
-
-// Set the JVM language level used to build the project.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-intellij {
-    version = project.findProperty('platformVersion')
-    type = project.findProperty('platformType')
-    plugins = ['com.intellij.java', 'Git4Idea'] // 필요한 의존성 플러그인 설정
-
-}
-
-
+group = providers.gradleProperty('pluginGroup').get()
+version = providers.gradleProperty('pluginVersion').get()
 
 repositories {
     mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        create(
+                providers.gradleProperty('platformType'),
+                providers.gradleProperty('platformVersion')
+        )
+
+        bundledPlugins('com.intellij.java', 'Git4Idea')
+
+        pluginVerifier()
+        zipSigner()
+        instrumentationTools()
+    }
+
     testImplementation 'junit:junit:4.13.2'
-//    implementation group: 'com.github.adedayo.intellij.sdk', name: 'git4idea', version: '142.1'
-    implementation group: 'org.json', name: 'json', version: '20250107'
-
+    implementation 'org.json:json:20250107'
 }
 
-//intellij {
-//    version = project.findProperty('platformVersion')
-//    type = project.findProperty('platformType')
-//
-//    plugins = project.findProperty('platformPlugins')?.split(',')
-//    bundledPlugins = project.findProperty('platformBundledPlugins')?.split(',')
-//
-//    instrumentationTools = true
-//    pluginVerifier = true
-//    testFramework = TestFrameworkType.PLATFORM
-//}
+intellijPlatform {
+    pluginConfiguration {
+        id = providers.gradleProperty('pluginGroup').map { it + ".write-me" } // 예: com.github.lyr426.write-me
+        name = providers.gradleProperty('pluginName')
+        version = providers.gradleProperty('pluginVersion')
 
-//changelog {
-//    groups = []
-//    repositoryUrl = project.findProperty('pluginRepositoryUrl')
-//}
-
-//kover {
-//    reports {
-//        xml {
-//            onCheck = true
-//        }
-//    }
-//}
-
-tasks.wrapper {
-    gradleVersion = project.findProperty('gradleVersion')
+        ideaVersion {
+            sinceBuild = providers.gradleProperty('pluginSinceBuild')
+        }
+    }
 }
 
-//intellij {
-//    pluginConfiguration {
-//        version = project.findProperty('pluginVersion')
-//
-//        // Extract the <!-- Plugin description --> section from README.md
-//        description = new File("README.md").text.with { content ->
-//            def start = "<!-- Plugin description -->"
-//            def end = "<!-- Plugin description end -->"
-//
-//            if (!content.contains(start) || !content.contains(end)) {
-//                throw new GradleException("Plugin description section not found in README.md:\n$start ... $end")
-//            }
-//
-//            def description = content.split("\n").findAll {
-//                content.indexOf(start) < content.indexOf(end)
-//            }
-//            markdownToHTML(description.join('\n'))
-//        }
-//
-//        ideaVersion {
-//            sinceBuild = project.findProperty('pluginSinceBuild')
-//            untilBuild = project.findProperty('pluginUntilBuild')
-//        }
-//    }
-//
-////    signing {
-////        certificateChain = System.getenv("CERTIFICATE_CHAIN")
-////        privateKey = System.getenv("PRIVATE_KEY")
-////        password = System.getenv("PRIVATE_KEY_PASSWORD")
-////    }
-//
-//    publishing {
-//        token = System.getenv("PUBLISH_TOKEN")
-//        channels = [project.findProperty('pluginVersion')?.split('-')?.last()?.split('.')?.first() ?: 'default']
-//    }
-//
-//    pluginVerification {
-//        ides = ['recommended']
-//    }
-//}
-//
-//tasks.register('publishPlugin') {
-//    dependsOn 'patchChangelog'
-//}
-//
-//tasks.register('runIdeForUiTests') {
-//    dependsOn 'runIde'
-//    doFirst {
-//        systemProperty "robot-server.port", "8082"
-//        systemProperty "ide.mac.message.dialogs.as.sheets", "false"
-//        systemProperty "jb.privacy.policy.text", "<!--999.999-->"
-//        systemProperty "jb.consents.confirmation.enabled", "false"
-//    }
-//}
-
+tasks.runIde {
+    jvmArgs("-Djava.security.manager=disallow")
+}

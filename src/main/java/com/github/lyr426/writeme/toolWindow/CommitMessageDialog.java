@@ -1,9 +1,7 @@
 package com.github.lyr426.writeme.toolWindow;
 
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -11,25 +9,11 @@ import com.intellij.openapi.vcs.CommitMessageI;
 import com.intellij.openapi.vcs.VcsDataKeys;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.changes.LocalChangeList;
-import com.intellij.openapi.vcs.changes.ui.CommitChangeListDialog;
 import com.intellij.openapi.vcs.ui.CommitMessage;
-import com.intellij.vcs.commit.ChangeListCommitState;
-import git4idea.commands.Git;
-import git4idea.commands.GitLineHandler;
-import git4idea.commands.GitTextHandler;
-import git4idea.commit.GitCommitCompletionContributor;
-import git4idea.commit.GitTemplateCommitMessageProvider;
-import git4idea.commit.signature.GitCommitSignature;
-import git4idea.commit.signature.GitCommitSignature.Verified;
-import git4idea.performanceTesting.GitCommitCommand;
-import git4idea.stash.GitStashCache.StashData.Changes;
-import java.awt.Color;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import org.eclipse.jgit.internal.JGitText;
 import org.jetbrains.annotations.Nullable;
 
 public class CommitMessageDialog extends DialogWrapper {

@@ -8,13 +8,6 @@
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.lyr426.writeme.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <projectService
-          serviceImplementation="com.github.lyr426.writeme.services.MyProjectService"
-          serviceInterface="com.github.lyr426.writeme.services.MyProjectService" />
-    </extensions>
-
     <actions>
         <action id="PopupAction" class="com.github.lyr426.writeme.actions.PopupAction" text="Make READ.ME" >
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
@@ -22,9 +15,11 @@
         <action id="CreateFileAction" class="com.github.lyr426.writeme.actions.CreateFileAction" text="Create File">
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
-        <action id="GenerateCommitMessageAction" class="com.github.lyr426.writeme.actions.GenerateCommitMessageAction" text="Generate Commit Message">
+        <action id="GenerateCommitMessageAction" class="com.github.lyr426.writeme.actions.GenerateCommitMessageAction" text="Generate Commit Message"
+        icon="/icons/icon16x16.png">
             <add-to-group group-id="ChangesView.CommitToolbar" anchor="after" relative-to-action="Vcs.Commit"  />
         </action>
+
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -41,6 +36,6 @@
         <listener class="com.github.lyr426.writeme.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
 
-    <idea-version since-build="231" />
+    <idea-version since-build="243"/>
     <depends>Git4Idea</depends>
 </idea-plugin>

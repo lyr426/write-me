@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
 
 public class AiCommitSuggester {
@@ -38,7 +39,7 @@ public class AiCommitSuggester {
 
       // 3. 요청 본문 전송
       try (OutputStream os = conn.getOutputStream()) {
-        byte[] input = requestBody.toString().getBytes("utf-8");
+        byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
         os.write(input, 0, input.length);
       }
 
