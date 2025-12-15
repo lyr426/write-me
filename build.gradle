@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.commonmark:commonmark:0.21.0'
+    }
+}
+
+import org.commonmark.parser.Parser
+import org.commonmark.renderer.html.HtmlRenderer
+
 plugins {
     id 'java'
     id 'org.jetbrains.intellij.platform' version '2.2.1'
@@ -45,4 +57,30 @@ intellijPlatform {
 
 tasks.runIde {
     jvmArgs("-Djava.security.manager=disallow")
+}
+
+tasks.patchPluginXml {
+    pluginDescription = provider {
+        def file = file("README.md")
+        if (!file.exists()) return "README not found"
+
+        def text = file.text
+        def start = ""
+        def end = ""
+
+        def startIndex = text.indexOf(start)
+        def endIndex = text.indexOf(end)
+
+        def content = ""
+        if (startIndex >= 0 && endIndex > startIndex) {
+            content = text.substring(startIndex + start.length(), endIndex).trim()
+        } else {
+            content = text // 주석 없으면 전체
+        }
+
+        // Markdown -> HTML 변환 로직
+        Parser parser = Parser.builder().build()
+        HtmlRenderer renderer = HtmlRenderer.builder().build()
+        return renderer.render(parser.parse(content))
+    }
 }

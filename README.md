@@ -22,7 +22,7 @@
 2.  좌측 메뉴 목록에서 **Write Me**를 찾습니다.
 3.  **OpenAI API Key** 입력란에 발급받은 키(sk-...)를 붙여넣고 `Apply`를 누릅니다.
 
-> ![Settings Screenshot](docs/images/writeme_setting_screenshot.PNG)
+> ![Settings Screenshot](https://raw.githubusercontent.com/lyr426/write-me/refs/heads/main/docs/images/writeme_setting_screenshot.PNG)
 > *(설정 화면 예시)*
 
 ### 📝 사용 방법 (Usage)
@@ -48,7 +48,7 @@ You need a valid **OpenAI API Key** to use this plugin.
     * *If it's at the root level, just use:* Find **Write Me** in the left-hand menu.
 3.  Enter your **OpenAI API Key** (starting with `sk-...`) and click `Apply`.
 
-> ![Settings Screenshot](docs/images/writeme_setting_screenshot.PNG)
+> ![Settings Screenshot](https://raw.githubusercontent.com/lyr426/write-me/refs/heads/main/docs/images/writeme_setting_screenshot.PNG)
 > *(Settings Screen Example)*
 
 ### 📝 Usage
