@@ -1,76 +1,150 @@
 package com.github.lyr426.writeme.services;
 
 import com.github.lyr426.writeme.settings.SettingsState;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import org.json.JSONObject;
 
 public class AiCommitSuggester {
 
-  private static final String API_URL = "https://api.openai.com/v1/chat/completions";
+  private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+  private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
+  public static String generate(String diff) {
+    SettingsState settings = SettingsState.getInstance();
+    String provider = settings.getSelectedProvider(); // OPENAI 또는 GEMINI
 
-  public static String generate(String prompt) {
-    try {
-      SettingsState settings = SettingsState.getInstance();
+    if ("GEMINI".equals(provider)) {
+      String apiKey = settings.getGoogleApiKey();
+      if (apiKey == null || apiKey.isEmpty()) {
+        return "Error: Google API Key is missing. Please check your settings.";
+      }
+      return generateWithGemini(diff, apiKey);
+    }
+
+    else {
       String apiKey = settings.getApiKey();
-      // 1. OpenAI API 요청 생성
-      URL url = new URL(API_URL);
+      if (apiKey == null || apiKey.isEmpty()) {
+        return "Error: OpenAI API Key is missing. Please check your settings.";
+      }
+      return generateWithOpenAI(diff, apiKey);
+    }
+  }
+
+  private static String generateWithOpenAI(String diff, String apiKey) {
+    try {
+      URL url = new URL(OPENAI_API_URL);
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod("POST");
       conn.setRequestProperty("Content-Type", "application/json");
       conn.setRequestProperty("Authorization", "Bearer " + apiKey);
       conn.setDoOutput(true);
 
-      // 2. GPT 모델 설정 (커밋 메시지 생성을 위한 프롬프트)
+      String systemPrompt = createSystemPrompt(diff);
+
       JSONObject requestBody = new JSONObject();
-      requestBody.put("model", "gpt-4");  // 사용할 모델 지정
-      requestBody.put("temperature", 0.7);  // 다양성 조절
-      requestBody.put("max_tokens", 250);  // 최대 토큰 길이 제한
+      requestBody.put("model", "gpt-4"); // gpt-3.5-turbo 등 변경 가능
+      requestBody.put("temperature", 0.7);
 
-      // 시스템 역할 추가 (커밋 메시지 스타일 정의)
-      requestBody.put("messages", new JSONObject[]{
-        new JSONObject().put("role", "system").put("content", "You are an AI that generates concise Git commit messages in the conventional commit style."),
-        new JSONObject().put("role", "user").put("content", "Generate a commit message in korean for the following changes:\n" + prompt)
-      });
+      JSONArray messages = new JSONArray();
+      messages.put(new JSONObject().put("role", "system").put("content", "You are a helpful assistant."));
+      messages.put(new JSONObject().put("role", "user").put("content", systemPrompt));
 
-      // 3. 요청 본문 전송
-      try (OutputStream os = conn.getOutputStream()) {
-        byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
-        os.write(input, 0, input.length);
-      }
+      requestBody.put("messages", messages);
 
-      // 4. 응답 수신 및 처리
-      int responseCode = conn.getResponseCode();
-      if (responseCode == HttpURLConnection.HTTP_OK) { // 200 응답 확인
-        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-          response.append(line);
-        }
-        reader.close();
+      return sendRequestAndParse(conn, requestBody, "OPENAI");
 
-        // JSON 응답 파싱
-        JSONObject jsonResponse = new JSONObject(response.toString());
-        String commitMessage = jsonResponse.getJSONArray("choices")
-          .getJSONObject(0)
-          .getJSONObject("message")
-          .getString("content")
-          .trim();
-
-        return commitMessage;
-      } else {
-        System.out.println("re = " + conn.getResponseMessage());
-        return "Error: Received HTTP response code " + responseCode;
-      }
     } catch (Exception e) {
       e.printStackTrace();
-      return "Error generating commit message: " + e.getMessage();
+      return "OpenAI Error: " + e.getMessage();
+    }
+  }
+
+  private static String generateWithGemini(String diff, String apiKey) {
+    try {
+      URL url = new URL(GEMINI_API_URL + apiKey);
+      HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+      conn.setRequestMethod("POST");
+      conn.setRequestProperty("Content-Type", "application/json");
+      conn.setDoOutput(true);
+
+      String systemPrompt = createSystemPrompt(diff);
+
+      JSONObject textPart = new JSONObject();
+      textPart.put("text", systemPrompt);
+
+      JSONObject partObj = new JSONObject();
+      partObj.put("parts", new JSONArray().put(textPart));
+
+      JSONObject requestBody = new JSONObject();
+      requestBody.put("contents", new JSONArray().put(partObj));
+
+      return sendRequestAndParse(conn, requestBody, "GEMINI");
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "Gemini Error: " + e.getMessage();
+    }
+  }
+
+  private static String createSystemPrompt(String diff) {
+    SettingsState settings = SettingsState.getInstance();
+    String language = settings.getCommitLanguage(); // 설정된 언어 가져오기
+
+    if (language == null || language.isEmpty()) {
+      language = "Korean";
     }
 
+    return "You are an AI that generates concise Git commit messages in the conventional commit style.\n" +
+            "Generate a commit message in " + language + " for the following changes:\n" +
+            diff;
+  }
+
+  private static String sendRequestAndParse(HttpURLConnection conn, JSONObject requestBody, String providerType) throws Exception {
+    try (OutputStream os = conn.getOutputStream()) {
+      byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
+      os.write(input, 0, input.length);
+    }
+
+    int responseCode = conn.getResponseCode();
+    if (responseCode != HttpURLConnection.HTTP_OK) {
+      try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8))) {
+        StringBuilder errorResponse = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) errorResponse.append(line);
+        return "Error (" + responseCode + "): " + errorResponse.toString();
+      }
+    }
+
+    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+    StringBuilder response = new StringBuilder();
+    String line;
+    while ((line = reader.readLine()) != null) {
+      response.append(line);
+    }
+    reader.close();
+
+    JSONObject jsonResponse = new JSONObject(response.toString());
+
+    if ("GEMINI".equals(providerType)) {
+      return jsonResponse.getJSONArray("candidates")
+              .getJSONObject(0)
+              .getJSONObject("content")
+              .getJSONArray("parts")
+              .getJSONObject(0)
+              .getString("text")
+              .trim();
+    } else {
+      return jsonResponse.getJSONArray("choices")
+              .getJSONObject(0)
+              .getJSONObject("message")
+              .getString("content")
+              .trim();
+    }
   }
 }

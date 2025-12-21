@@ -1,49 +1,96 @@
 package com.github.lyr426.writeme.settings;
 
-import java.awt.BorderLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBTextField;
+import com.intellij.util.ui.FormBuilder;
+import javax.swing.*;
 
 public class SettingsComponent {
 
-  private final JPanel panel;
-  private final JTextField apiKeyField;
+  private final JPanel mainPanel;
+
+  private final JBTextField apiKeyField = new JBTextField();
+  private final JBTextField googleApiKeyField = new JBTextField();
+
+  private final JRadioButton rbOpenAI = new JRadioButton("OpenAI (GPT-4 / GPT-3.5)", true);
+  private final JRadioButton rbGemini = new JRadioButton("Google (Gemini 1.5 Flash - Free)", false);
+
+  private final ComboBox<String> languageComboBox = new ComboBox<>(new String[]{"Korean", "English"});
 
   public SettingsComponent() {
-    // 패널 생성 및 레이아웃 설정
-    panel = new JPanel(new BorderLayout());
+    ButtonGroup providerGroup = new ButtonGroup();
+    providerGroup.add(rbOpenAI);
+    providerGroup.add(rbGemini);
 
-    // 라벨과 텍스트 필드 생성
-    JLabel label = new JLabel("OpenAI API Key:");
-    apiKeyField = new JTextField();
+    apiKeyField.setColumns(30);
+    googleApiKeyField.setColumns(30);
 
-    // 라벨과 텍스트 필드를 상단에 위치시키기
-    JPanel topPanel = new JPanel(new BorderLayout());
-    topPanel.add(label, BorderLayout.WEST);
-    topPanel.add(apiKeyField, BorderLayout.CENTER);
+    mainPanel = FormBuilder.createFormBuilder()
+            // --- OpenAI 섹션 ---
+            .addComponent(new JBLabel("Select AI Provider:"))
+            .addComponent(rbOpenAI)
+            .addLabeledComponent(new JBLabel("OpenAI API Key:"), apiKeyField)
+            .addSeparator(5)
+            // --- Google Gemini 섹션 ---
+            .addComponent(rbGemini)
+            .addLabeledComponent(new JBLabel("Gemini API Key:"), googleApiKeyField)
+            .addSeparator(10)
+            .addLabeledComponent(new JBLabel("Commit Language:"), languageComboBox)
 
-    // 패널 상단에 배치
-    panel.add(topPanel, BorderLayout.NORTH);
-
-    // 텍스트 필드의 초기 크기 설정
-    apiKeyField.setColumns(20); // 텍스트 필드 너비를 설정
+            .addComponentFillVertically(new JPanel(), 0)
+            .getPanel();
   }
 
   public JPanel getPanel() {
-    return panel;
+    return mainPanel;
+  }
+
+  public JComponent getPreferredFocusedComponent() {
+    return apiKeyField;
   }
 
   public boolean isModified() {
-    String savedKey = SettingsState.getInstance().getApiKey();
-    return !apiKeyField.getText().equals(savedKey);
+    SettingsState settings = SettingsState.getInstance();
+
+    boolean isOpenAIKeyChanged = !apiKeyField.getText().equals(settings.getApiKey());
+    boolean isGoogleKeyChanged = !googleApiKeyField.getText().equals(settings.getGoogleApiKey());
+
+    boolean isProviderChanged = false;
+    if (rbOpenAI.isSelected() && !"OPENAI".equals(settings.getSelectedProvider())) isProviderChanged = true;
+    if (rbGemini.isSelected() && !"GEMINI".equals(settings.getSelectedProvider())) isProviderChanged = true;
+
+    boolean isLanguageChanged = !languageComboBox.getItem().equals(settings.getCommitLanguage());
+
+    return isOpenAIKeyChanged || isGoogleKeyChanged || isProviderChanged || isLanguageChanged;
   }
 
   public void saveSettings() {
-    SettingsState.getInstance().setApiKey(apiKeyField.getText());
+    SettingsState settings = SettingsState.getInstance();
+
+    settings.setApiKey(apiKeyField.getText());
+    settings.setGoogleApiKey(googleApiKeyField.getText());
+
+    if (rbOpenAI.isSelected()) {
+      settings.setSelectedProvider("OPENAI");
+    } else {
+      settings.setSelectedProvider("GEMINI");
+    }
+
+    settings.setCommitLanguage((String) languageComboBox.getItem());
   }
 
   public void loadSettings() {
-    apiKeyField.setText(SettingsState.getInstance().getApiKey());
+    SettingsState settings = SettingsState.getInstance();
+
+    apiKeyField.setText(settings.getApiKey());
+    googleApiKeyField.setText(settings.getGoogleApiKey());
+
+    if ("GEMINI".equals(settings.getSelectedProvider())) {
+      rbGemini.setSelected(true);
+    } else {
+      rbOpenAI.setSelected(true);
+    }
+    languageComboBox.setItem(settings.getCommitLanguage());
   }
 }
