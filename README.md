@@ -1,10 +1,12 @@
+**Write Me** is an IntelliJ IDEA plugin that uses OpenAI GPT models/Google Gemini to analyze Git diffs and automatically generate clear, concise, and context-aware commit messages.
+It helps developers save time, maintain consistent commit quality, and write meaningful commit messages with a single click directly inside the IDE.
+
+
 # Write Me ⚡️
 [![IntelliJ Platform](https://img.shields.io/badge/IntelliJ-Platform-nk?logo=intellij-idea)](https://plugins.jetbrains.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 **Write Me** is an IntelliJ plugin that utilizes **Google Gemini** and **OpenAI GPT** models to analyze code changes (Git Diff) and **automatically generate appropriate commit messages**.
-
-**Write Me**는 **Google Gemini**와 **OpenAI GPT** 모델을 활용하여 코드 변경 사항(Git Diff)을 분석하고, 상황에 맞는 **커밋 메시지를 자동으로 생성해주는 인텔리제이(IntelliJ) 플러그인**입니다.
 
 ---
 
@@ -20,7 +22,7 @@
 You need a valid API Key for the service you wish to use (**Google Gemini** or **OpenAI**).
 
 1. **Get your API Key:**
-    * **Google Gemini:** [Google AI Studio](https://aistudio.google.com/app/apikey)
+    * **Google Gemini:** Get a free API key at [Google AI Studio](https://aistudio.google.com/app/apikey)
     * **OpenAI GPT:** [OpenAI Platform](https://platform.openai.com/api-keys)
 2. Open **Settings** (Windows/Linux) or **Settings / Preferences** (macOS) in IntelliJ. (`Ctrl` + `Alt` + `S` / `Cmd` + `,`)
 3. Find **Write Me** in the left-hand menu.
@@ -58,7 +60,7 @@ You need a valid API Key for the service you wish to use (**Google Gemini** or *
 사용하고자 하는 서비스(**Google Gemini** 또는 **OpenAI**)의 API Key가 필요합니다.
 
 1. **API Key 발급:**
-    * **Google Gemini:** [Google AI Studio](https://aistudio.google.com/app/apikey)에서 발급
+    * **Google Gemini:** [Google AI Studio](https://aistudio.google.com/app/apikey)에서 무료 API 키 발급
     * **OpenAI GPT:** [OpenAI Platform](https://platform.openai.com/api-keys)에서 발급
 2. IntelliJ 상단 메뉴에서 **Settings** (Mac: `Preferences`)를 엽니다. (`Ctrl` + `Alt` + `S` / `Cmd` + `,`)
 3. 좌측 메뉴 목록에서 **Write Me**를 찾습니다.

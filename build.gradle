@@ -45,7 +45,7 @@ dependencies {
 
 intellijPlatform {
     pluginConfiguration {
-        id = providers.gradleProperty('pluginGroup').map { it + ".write-me" } // 예: com.github.lyr426.write-me
+        id = providers.gradleProperty('pluginGroup').map { it + ".write-me" }
         name = providers.gradleProperty('pluginName')
         version = providers.gradleProperty('pluginVersion')
 
@@ -76,10 +76,9 @@ tasks.patchPluginXml {
         if (startIndex >= 0 && endIndex > startIndex) {
             content = text.substring(startIndex + start.length(), endIndex).trim()
         } else {
-            content = text // 주석 없으면 전체
+            content = text
         }
 
-        // Markdown -> HTML 변환 로직
         Parser parser = Parser.builder().build()
         HtmlRenderer renderer = HtmlRenderer.builder().build()
         return renderer.render(parser.parse(content))
