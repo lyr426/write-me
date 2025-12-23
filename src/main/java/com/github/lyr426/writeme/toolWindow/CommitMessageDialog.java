@@ -1,12 +1,9 @@
 package com.github.lyr426.writeme.toolWindow;
 
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.CommitMessageI;
-import com.intellij.openapi.vcs.VcsDataKeys;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.changes.LocalChangeList;
 import com.intellij.openapi.vcs.ui.CommitMessage;
@@ -18,14 +15,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class CommitMessageDialog extends DialogWrapper {
 
-  private final Project project; // 프로젝트 객체
+  private final Project project;
   private final String message;
-  private JTextArea textArea; // 텍스트 입력 필드
+  private final CommitMessageI commitPanel;
+  private JTextArea textArea;
 
-  public CommitMessageDialog(Project project, String message) {
+  public CommitMessageDialog(Project project, String message, CommitMessageI commitPanel) {
     super(true);
     this.project = project;
     this.message = message;
+    this.commitPanel = commitPanel;
     init();
     setTitle("Generated Commit Message");
   }
@@ -35,16 +34,13 @@ public class CommitMessageDialog extends DialogWrapper {
     JPanel panel = new JPanel();
     textArea = new JTextArea(message, 10, 50);
     panel.add(textArea);
-
     return panel;
   }
 
   @Override
   protected void doOKAction() {
     String updatedMessage = textArea.getText().trim();
-
     setCommitMessage(updatedMessage);
-
     super.doOKAction();
   }
 
@@ -55,33 +51,22 @@ public class CommitMessageDialog extends DialogWrapper {
     }
 
     try {
-      // ChangeListManager를 통해 현재 변경 목록 가져오기
+      // 1. 내부 데이터(ChangeList) 업데이트 (기존 코드 유지)
       ChangeListManager changeListManager = ChangeListManager.getInstance(project);
       List<LocalChangeList> changeLists = changeListManager.getChangeLists();
 
-      if (changeLists.isEmpty()) {
-        Messages.showErrorDialog("No changelists found.", "Error");
-        return false;
+      if (!changeLists.isEmpty()) {
+        LocalChangeList changeList = changeLists.get(0);
+        changeListManager.editComment(changeList.getName(), commitMessage);
       }
 
-      // 첫 번째 변경 목록에 커밋 메시지 설정
-      LocalChangeList changeList = changeLists.get(0);
-      changeListManager.editComment(changeList.getName(), commitMessage);
-      changeListManager.setDefaultChangeList(changeList);
-
-      ApplicationManager.getApplication().invokeLater(() -> {
-        DataManager.getInstance().getDataContextFromFocusAsync().onSuccess(dataContext -> {
-          CommitMessageI commitMessageComponent = VcsDataKeys.COMMIT_MESSAGE_CONTROL.getData(dataContext);
-          if (commitMessageComponent instanceof CommitMessage) {
-            ((CommitMessage) commitMessageComponent).setText(commitMessage);
-            System.out.println("Updated commit message: " + commitMessage);
-          } else {
-            Messages.showErrorDialog("Commit Message UI is not available.", "Error");
-          }
-        }).onError(throwable -> {
-          Messages.showErrorDialog("Failed to retrieve commit message component: " + throwable.getMessage(), "Error");
-        });
-      });
+      if (commitPanel instanceof CommitMessage) {
+        ((CommitMessage) commitPanel).setCommitMessage(commitMessage);
+        System.out.println("Updated commit message: " + commitMessage);
+      } else {
+        // 혹시 패널을 못 받아왔을 경우 로그 정도만 남김 (ChangeListManager가 백업 역할)
+        System.out.println("Warning: Commit UI panel is null, only ChangeList updated.");
+      }
 
       return true;
 
